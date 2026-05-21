@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { PostForm } from '@/components/PostForm';
 import { PostList } from '@/components/PostList';
 import { Post } from '@/types/post';
@@ -13,24 +13,27 @@ interface HomeContentProps {
 export function HomeContent({ initialPosts }: HomeContentProps) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [loading, setLoading] = useState(false);
 
-  const refetchPosts = () => {
-    startTransition(async () => {
-      try {
-        const { data, error } = await supabase
-          .from('posts')
-          .select('*')
-          .order('created_at', { ascending: false });
+  const refetchPosts = async (): Promise<void> => {
+    if (loading) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        setPosts(data || []);
-        setError(null);
-      } catch (err) {
-        console.error('投稿の取得に失敗しました:', err);
-        setError(`投稿の取得に失敗しました: ${err instanceof Error ? err.message : '不明なエラー'}`);
-      }
-    });
+      if (error) throw error;
+      setPosts(data || []);
+    } catch (err) {
+      console.error('投稿の取得に失敗しました:', err);
+      setError(`投稿の取得に失敗しました: ${err instanceof Error ? err.message : '不明なエラー'}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLike = async (postId: string) => {
@@ -82,7 +85,7 @@ export function HomeContent({ initialPosts }: HomeContentProps) {
             </div>
           )}
 
-          <PostList posts={posts} loading={isPending} onLike={handleLike} />
+          <PostList posts={posts} loading={loading} onLike={handleLike} />
         </div>
       </div>
     </div>
