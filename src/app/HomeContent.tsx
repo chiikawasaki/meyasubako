@@ -15,9 +15,12 @@ export function HomeContent({ initialPosts }: HomeContentProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const refetchPosts = async () => {
+  const refetchPosts = async (): Promise<void> => {
+    if (loading) return;
+    
     try {
       setLoading(true);
+      setError(null);
       const { data, error } = await supabase
         .from('posts')
         .select('*')
@@ -25,7 +28,6 @@ export function HomeContent({ initialPosts }: HomeContentProps) {
 
       if (error) throw error;
       setPosts(data || []);
-      setError(null);
     } catch (err) {
       console.error('投稿の取得に失敗しました:', err);
       setError(`投稿の取得に失敗しました: ${err instanceof Error ? err.message : '不明なエラー'}`);

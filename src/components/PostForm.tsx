@@ -87,7 +87,7 @@ function CategoryDropdown({ value, onChange }: CategoryDropdownProps) {
 }
 
 interface PostFormProps {
-  onPostSuccess: () => void;
+  onPostSuccess: () => Promise<void>;
 }
 
 export function PostForm({ onPostSuccess }: PostFormProps) {
@@ -125,7 +125,7 @@ export function PostForm({ onPostSuccess }: PostFormProps) {
       });
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-      onPostSuccess();
+      await onPostSuccess();
     } catch (err) {
       console.error("投稿に失敗しました:", err);
       setError("投稿に失敗しました。もう一度お試しください。");
