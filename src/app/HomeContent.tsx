@@ -11,13 +11,18 @@ interface HomeContentProps {
   initialPosts: Post[];
 }
 
+const sortPostsByCreatedAt = (items: Post[]): Post[] =>
+  [...items].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+
 export function HomeContent({ initialPosts }: HomeContentProps) {
   console.log('=== HomeContent コンポーネント初期化 ===');
   console.log('初期投稿数:', initialPosts.length);
   console.log('初期投稿の最新タイトル:', initialPosts[0]?.title || 'なし');
   console.log('初期投稿の最新作成日時:', initialPosts[0]?.created_at || 'なし');
   
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const [posts, setPosts] = useState<Post[]>(sortPostsByCreatedAt(initialPosts));
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<PostInsert['category'] | 'all'>('all');
@@ -44,13 +49,26 @@ export function HomeContent({ initialPosts }: HomeContentProps) {
       console.log('最新投稿の作成日時:', data?.[0]?.created_at || 'なし');
       console.log('=== Client-side refetchPosts 実行終了 ===');
       
-      setPosts(data || []);
+      setPosts(sortPostsByCreatedAt(data || []));
     } catch (err) {
       console.error('投稿の取得に失敗しました:', err);
       setError(`投稿の取得に失敗しました: ${err instanceof Error ? err.message : '不明なエラー'}`);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePostSuccess = async (newPost?: Post): Promise<void> => {
+    if (newPost) {
+      setPosts((prevPosts) =>
+        sortPostsByCreatedAt([
+          newPost,
+          ...prevPosts.filter((post) => post.id !== newPost.id),
+        ])
+      );
+    }
+
+    await refetchPosts();
   };
 
   const filteredPosts = useMemo(() => {
@@ -94,7 +112,7 @@ export function HomeContent({ initialPosts }: HomeContentProps) {
         </header>
 
         <div className="mb-12">
-          <PostForm onPostSuccess={refetchPosts} />
+          <PostForm onPostSuccess={handlePostSuccess} />
         </div>
 
         <div>

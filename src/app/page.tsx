@@ -2,6 +2,8 @@ import { HomeContent } from './HomeContent';
 import { Post } from '@/types/post';
 import { supabase } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   console.log('=== Server-side page.tsx 実行開始 ===');
   console.log('リクエスト時刻:', new Date().toISOString());

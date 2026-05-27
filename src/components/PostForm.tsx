@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PostInsert } from "@/types/post";
+import { Post, PostInsert } from "@/types/post";
 import { supabase } from "@/lib/supabase";
 
 interface CategoryDropdownProps {
@@ -87,7 +87,7 @@ function CategoryDropdown({ value, onChange }: CategoryDropdownProps) {
 }
 
 interface PostFormProps {
-  onPostSuccess: () => Promise<void>;
+  onPostSuccess: (newPost?: Post) => Promise<void>;
 }
 
 export function PostForm({ onPostSuccess }: PostFormProps) {
@@ -113,7 +113,11 @@ export function PostForm({ onPostSuccess }: PostFormProps) {
     setError(null);
 
     try {
-      const { error } = await supabase.from("posts").insert([formData]);
+      const { data: insertedPost, error } = await supabase
+        .from("posts")
+        .insert([formData])
+        .select("*")
+        .single();
 
       if (error) throw error;
 
@@ -125,7 +129,7 @@ export function PostForm({ onPostSuccess }: PostFormProps) {
       });
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-      await onPostSuccess();
+      await onPostSuccess(insertedPost);
     } catch (err) {
       console.error("投稿に失敗しました:", err);
       setError("投稿に失敗しました。もう一度お試しください。");
