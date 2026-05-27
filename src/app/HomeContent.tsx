@@ -12,6 +12,11 @@ interface HomeContentProps {
 }
 
 export function HomeContent({ initialPosts }: HomeContentProps) {
+  console.log('=== HomeContent コンポーネント初期化 ===');
+  console.log('初期投稿数:', initialPosts.length);
+  console.log('初期投稿の最新タイトル:', initialPosts[0]?.title || 'なし');
+  console.log('初期投稿の最新作成日時:', initialPosts[0]?.created_at || 'なし');
+  
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -23,12 +28,22 @@ export function HomeContent({ initialPosts }: HomeContentProps) {
     try {
       setLoading(true);
       setError(null);
+      
+      console.log('=== Client-side refetchPosts 実行開始 ===');
+      console.log('リクエスト時刻:', new Date().toISOString());
+      
       const { data, error } = await supabase
         .from('posts')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('再取得した投稿数:', data?.length || 0);
+      console.log('最新投稿のタイトル:', data?.[0]?.title || 'なし');
+      console.log('最新投稿の作成日時:', data?.[0]?.created_at || 'なし');
+      console.log('=== Client-side refetchPosts 実行終了 ===');
+      
       setPosts(data || []);
     } catch (err) {
       console.error('投稿の取得に失敗しました:', err);
