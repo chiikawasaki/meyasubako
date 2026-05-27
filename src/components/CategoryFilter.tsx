@@ -22,6 +22,8 @@ export function CategoryFilter({ selectedCategory, onCategoryChange }: CategoryF
         {categories.map((category) => (
           <button
             key={category.value}
+            type="button"
+            aria-pressed={selectedCategory === category.value}
             onClick={() => onCategoryChange(category.value)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
               selectedCategory === category.value
