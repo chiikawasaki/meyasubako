@@ -104,8 +104,8 @@ export function PostForm({ onPostSuccess }: PostFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title.trim() || !formData.body.trim()) {
-      setError("タイトルと本文は必須です");
+    if (!formData.body.trim()) {
+      setError("本文は必須です");
       return;
     }
 
@@ -221,23 +221,6 @@ export function PostForm({ onPostSuccess }: PostFormProps) {
           </div>
         </div>
 
-        {/* タイトル */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            タイトル <span className="text-pink-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) => handleChange("title", e.target.value)}
-            placeholder="タイトルを入力してください"
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-300 focus:border-pink-300 transition-colors"
-            maxLength={100}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            {formData.title.length}/100文字
-          </p>
-        </div>
 
         {/* 本文 */}
         <div>
@@ -271,7 +254,7 @@ export function PostForm({ onPostSuccess }: PostFormProps) {
         <button
           type="submit"
           disabled={
-            isSubmitting || !formData.title.trim() || !formData.body.trim()
+            isSubmitting || !formData.body.trim()
           }
           className="w-full bg-gradient-to-r from-pink-400 to-rose-400 text-white font-medium py-3 px-6 rounded-lg 
                      hover:from-pink-500 hover:to-rose-500 focus:ring-2 focus:ring-pink-300 focus:ring-offset-2 
