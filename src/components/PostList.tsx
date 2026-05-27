@@ -13,8 +13,7 @@ export function PostList({ posts, loading, onLike }: PostListProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(timer);
+    setMounted(true);
   }, []);
 
   const formatDate = (dateString: string) => {
