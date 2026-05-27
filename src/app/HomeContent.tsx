@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { PostForm } from '@/components/PostForm';
 import { PostList } from '@/components/PostList';
-import { Post } from '@/types/post';
+import { CategoryFilter } from '@/components/CategoryFilter';
+import { Post, PostInsert } from '@/types/post';
 import { supabase } from '@/lib/supabase';
 
 interface HomeContentProps {
@@ -14,6 +15,7 @@ export function HomeContent({ initialPosts }: HomeContentProps) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<PostInsert['category'] | 'all'>('all');
 
   const refetchPosts = async (): Promise<void> => {
     if (loading) return;
@@ -35,6 +37,13 @@ export function HomeContent({ initialPosts }: HomeContentProps) {
       setLoading(false);
     }
   };
+
+  const filteredPosts = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return posts;
+    }
+    return posts.filter(post => post.category === selectedCategory);
+  }, [posts, selectedCategory]);
 
   const handleLike = async (postId: string) => {
     try {
@@ -79,13 +88,18 @@ export function HomeContent({ initialPosts }: HomeContentProps) {
             みんなの投稿
           </h2>
 
+          <CategoryFilter 
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
               {error}
             </div>
           )}
 
-          <PostList posts={posts} loading={loading} onLike={handleLike} />
+          <PostList posts={filteredPosts} loading={loading} onLike={handleLike} />
         </div>
       </div>
     </div>
